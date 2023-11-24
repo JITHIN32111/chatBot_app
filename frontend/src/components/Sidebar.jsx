@@ -9,6 +9,7 @@ import img from "../assets/img3.png";
 import Typewriter from 'typewriter-effect'
 import UseSocketReply from "../hooks/useSocketReply";
 import UseCopyTo from "../hooks/useCopyTo";
+import useFetchData from "../hooks/UseFetchData";
 const socket = io("http://localhost:5000");
 
 const Sidebar = () => {
@@ -16,7 +17,7 @@ const Sidebar = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [conversation, setConversation] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
 
   const handleLiClick = async (id) => {
     try {
@@ -36,23 +37,24 @@ const Sidebar = () => {
     }
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/api/user/getData`
-        );
-        console.log(response.data.data);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       const response = await axios.get(
+  //         `http://localhost:5000/api/user/getData`
+  //       );
+  //       console.log(response.data.data);
 
-        // Make sure response.data.data is an array before setting it in the state
+  //       // Make sure response.data.data is an array before setting it in the state
 
-        setData([...response.data.data]);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-    fetchData();
-  }, [conversation]);
+  //       setData([...response.data.data]);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   }
+  //   fetchData();
+  // }, [conversation]);
+  const { data, error } = useFetchData('http://localhost:5000/api/user/getData',conversation);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
