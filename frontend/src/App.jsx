@@ -39,8 +39,7 @@
 
 // export default App;
 import React from 'react'
-import Test2 from './components/Test2'
-import Test from './components/test'
+
 import Sidebar from './components/Sidebar'
 function App() {
   return (

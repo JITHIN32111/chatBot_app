@@ -52,7 +52,7 @@ app.use(urlencoded({ extended: true }));
 // console.log(io);
 
 // Socket.io setup for real-time communication
-const apiKey = "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";
+const apiKey = process.env.OPEN_AI_API;
 io.on("connection", (socket) => {
   console.log("A user connected");
 

@@ -6,10 +6,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { AiOutlineLoading } from "react-icons/ai";
 import axios from "axios";
 import img from "../assets/img3.png";
-import Typewriter from 'typewriter-effect'
+import Typewriter from "typewriter-effect";
 import UseSocketReply from "../hooks/useSocketReply";
 import UseCopyTo from "../hooks/useCopyTo";
 import useFetchData from "../hooks/UseFetchData";
+import UseSelectedQuestions from "../hooks/UseSelectedQuestions";
 const socket = io("http://localhost:5000");
 
 const Sidebar = () => {
@@ -19,42 +20,24 @@ const Sidebar = () => {
   const [loading, setLoading] = useState(false);
   // const [data, setData] = useState([]);
 
-  const handleLiClick = async (id) => {
-    try {
-      const selectedQuestion = data.find((msg) => msg._id === id);
-      setConversation((prevConversation) => [
-        ...prevConversation,
-        { content: selectedQuestion.question, sender: "user" },
-      ]);
+  // const handleLiClick = async (id) => {
+  //   try {
+  //     const selectedQuestion = data.find((msg) => msg._id === id);
+  //     setConversation((prevConversation) => [
+  //       ...prevConversation,
+  //       { content: selectedQuestion.question, sender: "user" },
+  //     ]);
 
-      setConversation((prevConversation) => [
-        ...prevConversation,
-        { content: selectedQuestion.content, sender: "bot" },
-      ]);
-      setIsSidebarOpen(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const response = await axios.get(
-  //         `http://localhost:5000/api/user/getData`
-  //       );
-  //       console.log(response.data.data);
-
-  //       // Make sure response.data.data is an array before setting it in the state
-
-  //       setData([...response.data.data]);
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     }
+  //     setConversation((prevConversation) => [
+  //       ...prevConversation,
+  //       { content: selectedQuestion.content, sender: "bot" },
+  //     ]);
+  //     setIsSidebarOpen(false);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
   //   }
-  //   fetchData();
-  // }, [conversation]);
-  const { data, error } = useFetchData('http://localhost:5000/api/user/getData',conversation);
+  // };
+
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -66,30 +49,25 @@ const Sidebar = () => {
     socket.emit("message", { message: inputMessage });
     setInputMessage("");
   };
+  const { data, error } = useFetchData(
+    "http://localhost:5000/api/user/getData",
+    conversation
+  );
+  const { handleLiClick } = UseSelectedQuestions(data, setConversation, setIsSidebarOpen);
 
-    const { copyToClipboard } = UseCopyTo();
-    UseSocketReply(socket, setConversation, setLoading, conversation);
-  // useEffect(() => {
-  //   socket.on("reply", (data) => {
-  //     const botReply = { content: data.reply, sender: "bot" };
-  //     setConversation([...conversation, botReply]);
-  //     setLoading(false);
-  //   });
-  // }, [conversation]);
+  const { copyToClipboard } = UseCopyTo();
+  UseSocketReply(socket, setConversation, setLoading, conversation);
 
   return (
     <div>
       <ToastContainer />
 
-      {/* Sidebar */}
       <div
         id="sidebar"
         className={`fixed h-screen bg-gray-800 text-white mt-6 rounded-lg   w-64 transition-transform duration-300 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 md:block`}
       >
-   
-        {/* Sidebar content */}
         <div className="flex flex-row mt-8 justify-between">
           <img className="w-14 ml-2  " src={img} alt="" />
           <h1 className=" font-bold  my-auto mr-24 text-gray-100  text-2xl">
@@ -104,7 +82,6 @@ const Sidebar = () => {
                 className="hover:text-gray-300"
                 onClick={() => handleLiClick(msg._id)}
               >
-                
                 {msg.question}
               </a>
             </li>
@@ -112,13 +89,11 @@ const Sidebar = () => {
         </ul>
       </div>
 
-      {/* Content */}
       <div
         className={`ml-0 md:ml-64 transition-transform duration-300 ${
           isSidebarOpen ? "translate-x-64" : "translate-x-0"
         }`}
       >
-        {/* Add your main content here */}
         <div className="flex h-screen antialiased text-gray-800">
           <div className="flex flex-row h-full w-full overflow-x-hidden">
             <div className="flex flex-col flex-auto h-full p-6">
@@ -126,18 +101,23 @@ const Sidebar = () => {
                 <div className="flex flex-col h-full overflow-x-auto mb-4">
                   <div className="flex flex-col h-full">
                     <div className="col-start-6 col-end-13 p-3  rounded-lg">
-                   {conversation.length? '': <div  className="flex flex-col justify-center font-sans items-center">
-                     <h1 className="text-4xl font-bold my-8 text-black ">
-                     <Typewriter
-  onInit={(typewriter) => {
-    typewriter
-      .typeString("Welcome to chatBot")
-      .pauseFor(2000)
-      .start(); // Don't forget to start the typewriter
-  }}
-/></h1>
-                     <h1 className="text-xl ">How can i help you ?</h1>
-                    </div>}
+                      {conversation.length ? (
+                        ""
+                      ) : (
+                        <div className="flex flex-col justify-center font-sans items-center">
+                          <h1 className="text-4xl font-bold my-8 text-black ">
+                            <Typewriter
+                              onInit={(typewriter) => {
+                                typewriter
+                                  .typeString("Welcome to chatBot")
+                                  .pauseFor(2000)
+                                  .start(); 
+                              }}
+                            />
+                          </h1>
+                          <h1 className="text-xl ">How can i help you ?</h1>
+                        </div>
+                      )}
                       {conversation.map((msg, index) => (
                         <div
                           className="flex items-center mb-4 justify-start"
