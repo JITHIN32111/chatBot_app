@@ -10,7 +10,6 @@ const UseSocketReply = (socket, setConversation, setLoading, conversation) => {
       socket.on("reply", handleReply);
   
       return () => {
-        // Cleanup the event listener when the component unmounts
         socket.off("reply", handleReply);
       };
     }, [socket, setConversation, setLoading, conversation]);
